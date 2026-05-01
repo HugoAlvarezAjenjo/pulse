@@ -1,0 +1,12 @@
+checks:
+  - name: Go
+    type: command
+    command: go version
+
+  - name: Go module
+    type: file
+    path: go.mod
+
+  - name: Main entry point
+    type: file
+    path: cmd/pulse/main.go

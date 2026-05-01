@@ -1,0 +1,40 @@
+package cli
+
+import (
+	"os"
+
+	"github.com/spf13/cobra"
+)
+
+var (
+	flagPlain  bool
+	flagConfig string
+	flagFix    bool
+)
+
+// rootCmd is the base command for pulse.
+var rootCmd = &cobra.Command{
+	Use:   "pulse",
+	Short: "Takes the pulse of your development environment",
+	Long:  "Pulse validates whether your development environment is correctly configured for a project.",
+	// Default behavior: run check
+	RunE: runCheck,
+}
+
+func init() {
+	// Global flags
+	rootCmd.PersistentFlags().BoolVar(&flagPlain, "plain", false, "disable colors and styling")
+	rootCmd.PersistentFlags().StringVar(&flagConfig, "config", "", "path to config file (default: auto-discover)")
+	rootCmd.PersistentFlags().BoolVar(&flagFix, "fix", false, "prompt to run suggested fixes for failed checks")
+
+	// Add subcommands
+	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(initCmd)
+}
+
+// Execute runs the root command.
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		os.Exit(2)
+	}
+}

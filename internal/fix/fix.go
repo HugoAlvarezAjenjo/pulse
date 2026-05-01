@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -63,7 +64,7 @@ func (e *Executor) Run(ctx context.Context, command string) error {
 	fixCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(fixCtx, "sh", "-c", command)
+	cmd := shellCommandContext(fixCtx, command)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -75,4 +76,11 @@ func (e *Executor) Run(ctx context.Context, command string) error {
 	}
 
 	return nil
+}
+
+func shellCommandContext(ctx context.Context, command string) *exec.Cmd {
+	if runtime.GOOS == "windows" {
+		return exec.CommandContext(ctx, "cmd", "/c", command)
+	}
+	return exec.CommandContext(ctx, "sh", "-c", command)
 }

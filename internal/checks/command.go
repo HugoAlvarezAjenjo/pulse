@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -24,8 +25,8 @@ type CommandCheck struct {
 func (c *CommandCheck) Run(ctx context.Context) result.Result {
 	start := time.Now()
 
-	parts := strings.Fields(c.Command)
-	if len(parts) == 0 {
+	command := strings.TrimSpace(c.Command)
+	if command == "" {
 		return result.Result{
 			Name:     c.Name,
 			Status:   result.Error,
@@ -35,16 +36,21 @@ func (c *CommandCheck) Run(ctx context.Context) result.Result {
 		}
 	}
 
-	cmd := exec.CommandContext(ctx, parts[0], parts[1:]...)
+	cmd := shellCommandContext(ctx, command)
 	output, err := cmd.Output()
 	duration := time.Since(start)
 
 	if err != nil {
+		parts := strings.Fields(command)
+		hint := "ensure the command is valid and available in PATH"
+		if len(parts) > 0 {
+			hint = fmt.Sprintf("ensure '%s' is installed and in PATH", parts[0])
+		}
 		return result.Result{
 			Name:     c.Name,
 			Status:   result.Failure,
 			Message:  fmt.Sprintf("command failed: %s", err),
-			Hint:     fmt.Sprintf("ensure '%s' is installed and in PATH", parts[0]),
+			Hint:     hint,
 			Duration: duration,
 			Fix:      c.Fix,
 		}
@@ -130,6 +136,13 @@ func compareVersions(a, b string) int {
 		}
 	}
 	return 0
+}
+
+func shellCommandContext(ctx context.Context, command string) *exec.Cmd {
+	if runtime.GOOS == "windows" {
+		return exec.CommandContext(ctx, "cmd", "/c", command)
+	}
+	return exec.CommandContext(ctx, "sh", "-c", command)
 }
 
 // parseVersion splits a version string into numeric parts.

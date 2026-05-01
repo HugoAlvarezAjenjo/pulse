@@ -2,6 +2,7 @@ package fix
 
 import (
 	"context"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -24,8 +25,15 @@ func TestExecutor_RunFailure(t *testing.T) {
 
 func TestExecutor_RunTimeout(t *testing.T) {
 	e := &Executor{Timeout: 100 * time.Millisecond}
-	err := e.Run(context.Background(), "sleep 10")
+	err := e.Run(context.Background(), longRunningCommand())
 	if err == nil {
 		t.Error("expected error for timed out command")
 	}
+}
+
+func longRunningCommand() string {
+	if runtime.GOOS == "windows" {
+		return "timeout /t 10 /nobreak > nul"
+	}
+	return "sleep 10"
 }

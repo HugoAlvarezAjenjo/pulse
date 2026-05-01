@@ -1,5 +1,6 @@
 # Binaries
 /pulse
+*.exe
 /bin/
 /dist/
 

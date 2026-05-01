@@ -1,5 +1,9 @@
 # Pulse
 
+[![CI](https://github.com/HugoAlvarezAjenjo/pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/HugoAlvarezAjenjo/pulse/actions/workflows/ci.yml)
+[![Release](https://github.com/HugoAlvarezAjenjo/pulse/actions/workflows/release.yml/badge.svg)](https://github.com/HugoAlvarezAjenjo/pulse/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/HugoAlvarezAjenjo/pulse)](https://goreportcard.com/report/github.com/HugoAlvarezAjenjo/pulse)
+
 > Takes the pulse of your development environment.
 
 Pulse validates whether a developer environment is correctly configured for a project. It checks for required tools, files, and services — then reports what's missing and optionally suggests fixes.
@@ -13,11 +17,23 @@ Pulse validates whether a developer environment is correctly configured for a pr
 
 ## Installation
 
+### Quick install (Linux/macOS)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/HugoAlvarezAjenjo/pulse/main/install.sh | sh
+```
+
+### Go install
+
 ```bash
 go install github.com/HugoAlvarezAjenjo/pulse/cmd/pulse@latest
 ```
 
-Or build from source:
+### Download binary
+
+Pre-built binaries for Linux, macOS, and Windows are available on the [Releases](https://github.com/HugoAlvarezAjenjo/pulse/releases) page.
+
+### Build from source
 
 ```bash
 git clone https://github.com/HugoAlvarezAjenjo/pulse.git

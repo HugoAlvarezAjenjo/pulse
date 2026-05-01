@@ -32,6 +32,12 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 }
 
+// SetVersion configures the version information for the CLI.
+func SetVersion(version, commit, date string) {
+	rootCmd.Version = version
+	rootCmd.SetVersionTemplate(`{{printf "pulse %s\n  commit: %s\n  built:  %s\n" .Version "` + commit + `" "` + date + `"}}`)
+}
+
 // Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

@@ -7,19 +7,27 @@ import (
 )
 
 // PlainRenderer outputs unformatted text suitable for CI and piping.
-type PlainRenderer struct{}
+type PlainRenderer struct {
+	Quiet bool
+}
 
 // NewPlain creates a new PlainRenderer.
-func NewPlain() *PlainRenderer {
-	return &PlainRenderer{}
+func NewPlain(quiet bool) *PlainRenderer {
+	return &PlainRenderer{Quiet: quiet}
 }
 
 func (p *PlainRenderer) Header() {
+	if p.Quiet {
+		return
+	}
 	fmt.Println("Pulse environment check")
 	fmt.Println()
 }
 
 func (p *PlainRenderer) Success(r result.Result) {
+	if p.Quiet {
+		return
+	}
 	msg := ""
 	if r.Message != "" {
 		msg = " " + r.Message

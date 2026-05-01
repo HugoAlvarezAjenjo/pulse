@@ -49,8 +49,8 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	// Render results
 	renderer.Render(rnd, results)
 
-	// Handle fixes if enabled
-	if flagFix {
+	// Handle fixes if enabled (not in json/github mode)
+	if flagFix && flagOutput != "json" && flagOutput != "github" {
 		handleFixes(ctx, results)
 	}
 
@@ -88,10 +88,22 @@ func buildChecks(cfg *config.Config) ([]checks.Check, error) {
 }
 
 func selectRenderer() renderer.Renderer {
+	// --plain is shorthand for --output plain
+	output := flagOutput
 	if flagPlain {
-		return renderer.NewPlain()
+		output = "plain"
 	}
-	return renderer.NewPretty()
+
+	switch output {
+	case "json":
+		return renderer.NewJSON(flagQuiet)
+	case "github":
+		return renderer.NewGitHub(flagQuiet)
+	case "plain":
+		return renderer.NewPlain(flagQuiet)
+	default:
+		return renderer.NewPretty(flagQuiet)
+	}
 }
 
 func handleFixes(ctx context.Context, results []result.Result) {

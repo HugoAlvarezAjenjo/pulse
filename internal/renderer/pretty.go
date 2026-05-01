@@ -8,20 +8,28 @@ import (
 )
 
 // PrettyRenderer outputs styled terminal output using Lip Gloss.
-type PrettyRenderer struct{}
+type PrettyRenderer struct {
+	Quiet bool
+}
 
 // NewPretty creates a new PrettyRenderer.
-func NewPretty() *PrettyRenderer {
-	return &PrettyRenderer{}
+func NewPretty(quiet bool) *PrettyRenderer {
+	return &PrettyRenderer{Quiet: quiet}
 }
 
 func (p *PrettyRenderer) Header() {
+	if p.Quiet {
+		return
+	}
 	fmt.Println()
 	fmt.Println(styles.Title.Render("Pulse environment check"))
 	fmt.Println()
 }
 
 func (p *PrettyRenderer) Success(r result.Result) {
+	if p.Quiet {
+		return
+	}
 	icon := styles.SuccessIcon.String()
 	name := styles.CheckName.Render(r.Name)
 	msg := ""

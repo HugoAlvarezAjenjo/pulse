@@ -10,6 +10,8 @@ var (
 	flagPlain  bool
 	flagConfig string
 	flagFix    bool
+	flagOutput string
+	flagQuiet  bool
 )
 
 // rootCmd is the base command for pulse.
@@ -23,9 +25,11 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	// Global flags
-	rootCmd.PersistentFlags().BoolVar(&flagPlain, "plain", false, "disable colors and styling")
+	rootCmd.PersistentFlags().BoolVar(&flagPlain, "plain", false, "disable colors and styling (shorthand for --output plain)")
 	rootCmd.PersistentFlags().StringVar(&flagConfig, "config", "", "path to config file (default: auto-discover)")
 	rootCmd.PersistentFlags().BoolVar(&flagFix, "fix", false, "prompt to run suggested fixes for failed checks")
+	rootCmd.PersistentFlags().StringVarP(&flagOutput, "output", "o", "pretty", "output format: pretty, plain, json, github")
+	rootCmd.PersistentFlags().BoolVarP(&flagQuiet, "quiet", "q", false, "only show failures and errors")
 
 	// Add subcommands
 	rootCmd.AddCommand(checkCmd)

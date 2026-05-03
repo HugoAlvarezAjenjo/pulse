@@ -14,14 +14,18 @@ type Config struct {
 
 // CheckConfig represents a single check entry in the configuration.
 type CheckConfig struct {
-	Name     string     `yaml:"name"`
-	Type     string     `yaml:"type"`
-	Command  string     `yaml:"command,omitempty"`
-	Expected string     `yaml:"expected,omitempty"`
-	Path     string     `yaml:"path,omitempty"`
-	Host     string     `yaml:"host,omitempty"`
-	Port     int        `yaml:"port,omitempty"`
-	Fix      *FixConfig `yaml:"fix,omitempty"`
+	Name      string     `yaml:"name"`
+	Type      string     `yaml:"type"`
+	Command   string     `yaml:"command,omitempty"`
+	Expected  string     `yaml:"expected,omitempty"`
+	Path      string     `yaml:"path,omitempty"`
+	Host      string     `yaml:"host,omitempty"`
+	Port      int        `yaml:"port,omitempty"`
+	Variable  string     `yaml:"variable,omitempty"`
+	URL       string     `yaml:"url,omitempty"`
+	Status    int        `yaml:"status,omitempty"`
+	Container string     `yaml:"container,omitempty"`
+	Fix       *FixConfig `yaml:"fix,omitempty"`
 }
 
 // FixConfig represents a fix command associated with a check.

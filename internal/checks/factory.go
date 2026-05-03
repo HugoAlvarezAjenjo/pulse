@@ -51,6 +51,38 @@ func FromConfig(cfg config.CheckConfig) (Check, error) {
 			Fix:  fix,
 		}, nil
 
+	case "env":
+		if cfg.Variable == "" {
+			return nil, fmt.Errorf("check %q: env type requires 'variable' field", cfg.Name)
+		}
+		return &EnvCheck{
+			Name:     cfg.Name,
+			Variable: cfg.Variable,
+			Expected: cfg.Expected,
+			Fix:      fix,
+		}, nil
+
+	case "http":
+		if cfg.URL == "" {
+			return nil, fmt.Errorf("check %q: http type requires 'url' field", cfg.Name)
+		}
+		return &HTTPCheck{
+			Name:           cfg.Name,
+			URL:            cfg.URL,
+			ExpectedStatus: cfg.Status,
+			Fix:            fix,
+		}, nil
+
+	case "docker":
+		if cfg.Container == "" {
+			return nil, fmt.Errorf("check %q: docker type requires 'container' field", cfg.Name)
+		}
+		return &DockerCheck{
+			Name:      cfg.Name,
+			Container: cfg.Container,
+			Fix:       fix,
+		}, nil
+
 	default:
 		return nil, fmt.Errorf("check %q: unknown type %q", cfg.Name, cfg.Type)
 	}

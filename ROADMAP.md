@@ -21,17 +21,17 @@
 - [x] Version info (`pulse --version`)
 - [x] README badges
 
-## v0.3.0 — Output Formats
+## v0.3.0 — Output Formats ✅
 
-- [ ] `--output json` structured output
-- [ ] `--output github` GitHub Actions annotations
-- [ ] `--quiet` only show failures
+- [x] `--output json` structured output
+- [x] `--output github` GitHub Actions annotations
+- [x] `--quiet` only show failures
 
-## v0.4.0 — New Check Types
+## v0.4.0 — New Check Types ✅
 
-- [ ] `env` — verify environment variables exist
-- [ ] `http` — health check endpoints
-- [ ] `docker` — verify containers are running
+- [x] `env` — verify environment variables exist
+- [x] `http` — health check endpoints
+- [x] `docker` — verify containers are running
 
 ## v0.5.0 — Developer Experience
 

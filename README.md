@@ -170,6 +170,67 @@ Validates that a TCP port is accepting connections.
 | `port` | yes | Port number |
 | `fix` | no | Fix command to suggest |
 
+#### `env`
+
+Validates that an environment variable exists and optionally matches a pattern.
+
+```yaml
+- name: Database URL
+  type: env
+  variable: DATABASE_URL
+
+- name: API Key
+  type: env
+  variable: API_KEY
+  expected: "sk-*"
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | yes | Display name |
+| `type` | yes | Must be `env` |
+| `variable` | yes | Environment variable name |
+| `expected` | no | Pattern to match (`*` wildcard supported) |
+| `fix` | no | Fix command to suggest |
+
+#### `http`
+
+Validates that an HTTP endpoint responds with the expected status code.
+
+```yaml
+- name: API Health
+  type: http
+  url: http://localhost:3000/health
+  status: 200
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | yes | Display name |
+| `type` | yes | Must be `http` |
+| `url` | yes | URL to check |
+| `status` | no | Expected HTTP status code (default: `200`) |
+| `fix` | no | Fix command to suggest |
+
+#### `docker`
+
+Validates that a Docker container is running.
+
+```yaml
+- name: Redis
+  type: docker
+  container: redis
+  fix:
+    run: "docker compose up redis -d"
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | yes | Display name |
+| `type` | yes | Must be `docker` |
+| `container` | yes | Container name or ID |
+| `fix` | no | Fix command to suggest |
+
 ### Fix Commands
 
 Any check can include a `fix` block with a `run` field:
@@ -190,8 +251,11 @@ When `--fix` is passed and a check fails, pulse will:
 | Flag | Description |
 |------|-------------|
 | `--plain` | Disable colors and styling |
+| `-o`, `--output` | Output format: `pretty`, `plain`, `json`, `github` |
+| `-q`, `--quiet` | Only show failures and errors |
 | `--config` | Path to config file (overrides auto-discovery) |
 | `--fix` | Prompt to run suggested fixes |
+| `--version` | Show version information |
 
 ## Config Discovery
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -100,12 +101,18 @@ func matchesConstraint(version, constraint string) bool {
 	return strings.Contains(version, constraint)
 }
 
-// extractVersion strips common version prefixes (v, V) from a version string.
-func extractVersion(version string) string {
-	version = strings.TrimSpace(version)
-	version = strings.TrimPrefix(version, "v")
-	version = strings.TrimPrefix(version, "V")
-	return version
+// versionRegex matches the first semver-like pattern (e.g., "1.26.2", "22.3.0")
+var versionRegex = regexp.MustCompile(`(\d+\.\d+(?:\.\d+)?)`)
+
+// extractVersion finds the first version-like pattern in the output string.
+// Handles any format: "v1.2.3", "go version go1.26.2 darwin/arm64", "node v22.3.0", etc.
+func extractVersion(output string) string {
+	match := versionRegex.FindString(output)
+	if match != "" {
+		return match
+	}
+	// Fallback: return trimmed input
+	return strings.TrimSpace(output)
 }
 
 // compareVersions performs a simple semver comparison.

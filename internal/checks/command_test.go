@@ -105,6 +105,11 @@ func TestExtractVersion(t *testing.T) {
 		{"V1.2.3", "1.2.3"},
 		{"1.2.3", "1.2.3"},
 		{"  v22.3.0  ", "22.3.0"},
+		{"go version go1.26.2 darwin/arm64", "1.26.2"},
+		{"node v22.3.0", "22.3.0"},
+		{"Python 3.12.1", "3.12.1"},
+		{"rustc 1.77.0 (aedd173a2 2024-03-17)", "1.77.0"},
+		{"openjdk version \"21.0.1\"", "21.0.1"},
 	}
 
 	for _, tt := range tests {

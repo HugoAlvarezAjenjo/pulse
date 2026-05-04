@@ -1,8 +1,11 @@
 checks:
+  # Build tools
   - name: Go
     type: command
     command: go version
+    expected: ">=1.23"
 
+  # Project structure
   - name: Go module
     type: file
     path: go.mod
@@ -10,3 +13,30 @@ checks:
   - name: Main entry point
     type: file
     path: cmd/pulse/main.go
+
+  - name: CLI package
+    type: file
+    path: cli/root.go
+
+  # Configuration
+  - name: Goreleaser config
+    type: file
+    path: .goreleaser.yml
+
+  - name: Linter config
+    type: file
+    path: .golangci.yml
+
+  # Documentation
+  - name: README
+    type: file
+    path: README.md
+
+  - name: Architecture docs
+    type: file
+    path: docs/architecture.md
+
+  # Environment
+  - name: GOPATH set
+    type: env
+    variable: GOPATH

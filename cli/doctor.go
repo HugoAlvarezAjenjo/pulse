@@ -27,18 +27,16 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 
 	// Version info
-	fmt.Printf("  %s  %s\n", label.Render("Version:"), value.Render(rootCmd.Version))
-
-	// System info
-	fmt.Printf("  %s       %s\n", label.Render("OS:"), value.Render(runtime.GOOS+"/"+runtime.GOARCH))
-	fmt.Printf("  %s  %s\n", label.Render("Go:      "), value.Render(runtime.Version()))
+	fmt.Printf("  %-10s %s\n", label.Render("Version:"), value.Render(rootCmd.Version))
+	fmt.Printf("  %-10s %s\n", label.Render("OS:"), value.Render(runtime.GOOS+"/"+runtime.GOARCH))
+	fmt.Printf("  %-10s %s\n", label.Render("Go:"), value.Render(runtime.Version()))
 
 	// Working directory
 	dir, err := os.Getwd()
 	if err != nil {
 		dir = "unknown"
 	}
-	fmt.Printf("  %s %s\n", label.Render("Workdir: "), value.Render(dir))
+	fmt.Printf("  %-10s %s\n", label.Render("Workdir:"), value.Render(dir))
 
 	fmt.Println()
 

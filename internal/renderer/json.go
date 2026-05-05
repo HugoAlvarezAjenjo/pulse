@@ -16,12 +16,12 @@ type JSONOutput struct {
 
 // JSONResult represents a single check result in JSON.
 type JSONResult struct {
-	Name       string  `json:"name"`
-	Status     string  `json:"status"`
-	Message    string  `json:"message,omitempty"`
-	Hint       string  `json:"hint,omitempty"`
-	Fix        string  `json:"fix,omitempty"`
-	DurationMs int64   `json:"duration_ms"`
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	Message    string `json:"message,omitempty"`
+	Hint       string `json:"hint,omitempty"`
+	Fix        string `json:"fix,omitempty"`
+	DurationMs int64  `json:"duration_ms"`
 }
 
 // JSONSummary represents the summary section in JSON output.
@@ -34,8 +34,7 @@ type JSONSummary struct {
 
 // JSONRenderer outputs results as structured JSON.
 type JSONRenderer struct {
-	Quiet   bool
-	results []result.Result
+	Quiet bool
 }
 
 // NewJSON creates a new JSONRenderer.
@@ -43,21 +42,13 @@ func NewJSON(quiet bool) *JSONRenderer {
 	return &JSONRenderer{Quiet: quiet}
 }
 
-func (j *JSONRenderer) Header() {
-	// No header in JSON mode
-}
+func (j *JSONRenderer) Header() {}
 
-func (j *JSONRenderer) Success(r result.Result) {
-	j.results = append(j.results, r)
-}
+func (j *JSONRenderer) Success(_ result.Result) {}
 
-func (j *JSONRenderer) Failure(r result.Result) {
-	j.results = append(j.results, r)
-}
+func (j *JSONRenderer) Failure(_ result.Result) {}
 
-func (j *JSONRenderer) Error(r result.Result) {
-	j.results = append(j.results, r)
-}
+func (j *JSONRenderer) Error(_ result.Result) {}
 
 func (j *JSONRenderer) Summary(results []result.Result) {
 	output := JSONOutput{
@@ -66,7 +57,17 @@ func (j *JSONRenderer) Summary(results []result.Result) {
 	}
 
 	for _, r := range results {
-		// In quiet mode, skip successes
+		// Count for summary
+		switch r.Status {
+		case result.Success:
+			output.Summary.Passed++
+		case result.Failure:
+			output.Summary.Failed++
+		case result.Error:
+			output.Summary.Errors++
+		}
+
+		// In quiet mode, skip successes from results list
 		if j.Quiet && r.Status == result.Success {
 			continue
 		}
@@ -83,30 +84,6 @@ func (j *JSONRenderer) Summary(results []result.Result) {
 		}
 
 		output.Results = append(output.Results, jr)
-
-		switch r.Status {
-		case result.Success:
-			output.Summary.Passed++
-		case result.Failure:
-			output.Summary.Failed++
-		case result.Error:
-			output.Summary.Errors++
-		}
-	}
-
-	// Count all for summary regardless of quiet
-	output.Summary.Passed = 0
-	output.Summary.Failed = 0
-	output.Summary.Errors = 0
-	for _, r := range results {
-		switch r.Status {
-		case result.Success:
-			output.Summary.Passed++
-		case result.Failure:
-			output.Summary.Failed++
-		case result.Error:
-			output.Summary.Errors++
-		}
 	}
 
 	data, err := json.MarshalIndent(output, "", "  ")

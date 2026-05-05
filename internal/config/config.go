@@ -25,6 +25,7 @@ type CheckConfig struct {
 	URL       string     `yaml:"url,omitempty"`
 	Status    int        `yaml:"status,omitempty"`
 	Container string     `yaml:"container,omitempty"`
+	Timeout   string     `yaml:"timeout,omitempty"`
 	Fix       *FixConfig `yaml:"fix,omitempty"`
 }
 

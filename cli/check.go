@@ -48,7 +48,7 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	if timeout, err := time.ParseDuration(flagTimeout); err == nil {
 		r.Timeout = timeout
 	}
-	results := r.Run(ctx, checkList)
+	results := r.RunWithTimeouts(ctx, checkList)
 
 	// Render results
 	renderer.Render(rnd, results)
@@ -77,15 +77,26 @@ func loadConfig() (*config.Config, error) {
 	return cfg, err
 }
 
-func buildChecks(cfg *config.Config) ([]checks.Check, error) {
-	checkList := make([]checks.Check, 0, len(cfg.Checks))
+func buildChecks(cfg *config.Config) ([]runner.CheckWithTimeout, error) {
+	checkList := make([]runner.CheckWithTimeout, 0, len(cfg.Checks))
 
 	for _, checkCfg := range cfg.Checks {
 		c, err := checks.FromConfig(checkCfg)
 		if err != nil {
 			return nil, err
 		}
-		checkList = append(checkList, c)
+
+		var timeout time.Duration
+		if checkCfg.Timeout != "" {
+			if t, err := time.ParseDuration(checkCfg.Timeout); err == nil {
+				timeout = t
+			}
+		}
+
+		checkList = append(checkList, runner.CheckWithTimeout{
+			Check:   c,
+			Timeout: timeout,
+		})
 	}
 
 	return checkList, nil

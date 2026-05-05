@@ -103,10 +103,22 @@ pulse --config path/to/config.yaml
 
 ### `pulse init`
 
-Generate a starter `.pulse.yaml` in the current directory.
+Generate a `.pulse.yaml` in the current directory with smart auto-detection.
 
 ```bash
-pulse init
+pulse init              # auto-detect stack and generate checks
+pulse init --preset go  # use a predefined template
+pulse init --empty      # blank template with guidance
+pulse init --force      # overwrite existing config
+```
+
+Available presets: `go`, `node`, `python`, `java`, `rust`
+
+Example output:
+
+```
+✓ Detected: Go, Make
+✓ Created .pulse.yaml with 3 checks
 ```
 
 ### `pulse doctor`

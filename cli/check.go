@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -44,6 +45,9 @@ func runCheck(cmd *cobra.Command, args []string) error {
 
 	// Run checks
 	r := runner.New()
+	if timeout, err := time.ParseDuration(flagTimeout); err == nil {
+		r.Timeout = timeout
+	}
 	results := r.Run(ctx, checkList)
 
 	// Render results

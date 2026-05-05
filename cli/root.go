@@ -7,11 +7,12 @@ import (
 )
 
 var (
-	flagPlain  bool
-	flagConfig string
-	flagFix    bool
-	flagOutput string
-	flagQuiet  bool
+	flagPlain   bool
+	flagConfig  string
+	flagFix     bool
+	flagOutput  string
+	flagQuiet   bool
+	flagTimeout string
 )
 
 // rootCmd is the base command for pulse.
@@ -30,6 +31,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&flagFix, "fix", false, "prompt to run suggested fixes for failed checks")
 	rootCmd.PersistentFlags().StringVarP(&flagOutput, "output", "o", "pretty", "output format: pretty, plain, json, github")
 	rootCmd.PersistentFlags().BoolVarP(&flagQuiet, "quiet", "q", false, "only show failures and errors")
+	rootCmd.PersistentFlags().StringVarP(&flagTimeout, "timeout", "t", "30s", "timeout per check (e.g., 10s, 1m)")
 
 	// Add subcommands
 	rootCmd.AddCommand(checkCmd)

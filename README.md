@@ -109,6 +109,31 @@ Generate a starter `.pulse.yaml` in the current directory.
 pulse init
 ```
 
+### `pulse doctor`
+
+Show diagnostic information about pulse, the system, and the current configuration.
+
+```bash
+pulse doctor
+```
+
+Output:
+
+```
+Pulse Doctor
+
+  Version:  dev
+  OS:       darwin/arm64
+  Go:       go1.26.2
+  Workdir:  /Users/you/project
+
+  Configuration
+
+  ✓ /Users/you/project/.pulse.yaml
+  ✓ 6 checks defined
+    command: 1, file: 4, env: 1
+```
+
 ## Configuration Reference
 
 ### Check Types

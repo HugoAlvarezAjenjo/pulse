@@ -37,6 +37,7 @@ func init() {
 	rootCmd.AddCommand(checkCmd)
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(doctorCmd)
+	rootCmd.AddCommand(listCmd)
 }
 
 // SetVersion configures the version information for the CLI.

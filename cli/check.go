@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/checks"
@@ -113,6 +114,11 @@ func selectRenderer() renderer.Renderer {
 	// --plain is shorthand for --output plain
 	output := flagOutput
 	if flagPlain {
+		output = "plain"
+	}
+
+	// Auto-detect: if stdout is not a terminal, use plain (unless user explicitly set output)
+	if output == "pretty" && !isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()) {
 		output = "plain"
 	}
 

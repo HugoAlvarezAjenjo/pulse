@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/result"
 )
@@ -55,7 +56,7 @@ func (p *PlainRenderer) Error(r result.Result) {
 	}
 }
 
-func (p *PlainRenderer) Summary(results []result.Result) {
+func (p *PlainRenderer) Summary(results []result.Result, duration time.Duration) {
 	passed := 0
 	failed := 0
 	errors := 0
@@ -72,5 +73,5 @@ func (p *PlainRenderer) Summary(results []result.Result) {
 	}
 
 	fmt.Println()
-	fmt.Printf("Summary: %d passed, %d failed, %d errors\n", passed, failed, errors)
+	fmt.Printf("Summary: %d passed, %d failed, %d errors in %s\n", passed, failed, errors, formatDuration(duration))
 }

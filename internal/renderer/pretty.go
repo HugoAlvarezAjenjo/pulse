@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/result"
 	"github.com/HugoAlvarezAjenjo/pulse/internal/styles"
@@ -69,7 +70,7 @@ func (p *PrettyRenderer) Error(r result.Result) {
 	fmt.Println()
 }
 
-func (p *PrettyRenderer) Summary(results []result.Result) {
+func (p *PrettyRenderer) Summary(results []result.Result, duration time.Duration) {
 	passed := 0
 	failed := 0
 	errors := 0
@@ -106,6 +107,10 @@ func (p *PrettyRenderer) Summary(results []result.Result) {
 		}
 		fmt.Print(part)
 	}
+
+	// Duration
+	fmt.Print(dot)
+	fmt.Print(styles.Hint.Render(formatDuration(duration)))
 	fmt.Println()
 	fmt.Println()
 }

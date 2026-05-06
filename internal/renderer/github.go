@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/result"
 )
@@ -51,7 +52,7 @@ func (g *GitHubRenderer) Error(r result.Result) {
 	fmt.Printf("::warning title=%s::%s\n", r.Name, msg)
 }
 
-func (g *GitHubRenderer) Summary(results []result.Result) {
+func (g *GitHubRenderer) Summary(results []result.Result, duration time.Duration) {
 	passed := 0
 	failed := 0
 	errors := 0
@@ -67,5 +68,5 @@ func (g *GitHubRenderer) Summary(results []result.Result) {
 		}
 	}
 
-	fmt.Printf("::notice::Pulse summary: %d passed, %d failed, %d errors\n", passed, failed, errors)
+	fmt.Printf("::notice::Pulse summary: %d passed, %d failed, %d errors in %s\n", passed, failed, errors, formatDuration(duration))
 }

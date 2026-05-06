@@ -48,10 +48,12 @@ func runCheck(cmd *cobra.Command, args []string) error {
 	if timeout, err := time.ParseDuration(flagTimeout); err == nil {
 		r.Timeout = timeout
 	}
+	start := time.Now()
 	results := r.RunWithTimeouts(ctx, checkList)
+	duration := time.Since(start)
 
 	// Render results
-	renderer.Render(rnd, results)
+	renderer.Render(rnd, results, duration)
 
 	// Handle fixes if enabled (not in json/github mode)
 	if flagFix && flagOutput != "json" && flagOutput != "github" {

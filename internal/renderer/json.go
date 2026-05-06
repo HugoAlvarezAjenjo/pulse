@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/result"
 )
@@ -26,10 +27,11 @@ type JSONResult struct {
 
 // JSONSummary represents the summary section in JSON output.
 type JSONSummary struct {
-	Total  int `json:"total"`
-	Passed int `json:"passed"`
-	Failed int `json:"failed"`
-	Errors int `json:"errors"`
+	Total      int   `json:"total"`
+	Passed     int   `json:"passed"`
+	Failed     int   `json:"failed"`
+	Errors     int   `json:"errors"`
+	DurationMs int64 `json:"duration_ms"`
 }
 
 // JSONRenderer outputs results as structured JSON.
@@ -50,10 +52,10 @@ func (j *JSONRenderer) Failure(_ result.Result) {}
 
 func (j *JSONRenderer) Error(_ result.Result) {}
 
-func (j *JSONRenderer) Summary(results []result.Result) {
+func (j *JSONRenderer) Summary(results []result.Result, duration time.Duration) {
 	output := JSONOutput{
 		Results: make([]JSONResult, 0, len(results)),
-		Summary: JSONSummary{Total: len(results)},
+		Summary: JSONSummary{Total: len(results), DurationMs: duration.Milliseconds()},
 	}
 
 	for _, r := range results {

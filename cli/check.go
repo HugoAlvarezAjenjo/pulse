@@ -40,6 +40,11 @@ func runCheck(cmd *cobra.Command, args []string) error {
 		os.Exit(2)
 	}
 
+	// Filter by groups if specified
+	if len(flagGroups) > 0 {
+		checkList = filterByGroups(cfg, checkList, flagGroups)
+	}
+
 	// Select renderer
 	rnd := selectRenderer()
 
@@ -143,4 +148,34 @@ func exitCode(results []result.Result) int {
 		}
 	}
 	return 0
+}
+
+// filterByGroups returns only checks that belong to the specified groups
+// or have no groups assigned (global checks always run).
+func filterByGroups(cfg *config.Config, checkList []runner.CheckWithTimeout, groups []string) []runner.CheckWithTimeout {
+	groupSet := make(map[string]bool, len(groups))
+	for _, g := range groups {
+		groupSet[g] = true
+	}
+
+	filtered := make([]runner.CheckWithTimeout, 0, len(checkList))
+	for i, cwt := range checkList {
+		checkCfg := cfg.Checks[i]
+
+		// No groups defined → global check, always included
+		if len(checkCfg.Groups) == 0 {
+			filtered = append(filtered, cwt)
+			continue
+		}
+
+		// Include if any of the check's groups match the requested groups
+		for _, g := range checkCfg.Groups {
+			if groupSet[g] {
+				filtered = append(filtered, cwt)
+				break
+			}
+		}
+	}
+
+	return filtered
 }

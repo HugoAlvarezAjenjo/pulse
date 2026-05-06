@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -44,6 +45,7 @@ func listPretty(cfg *config.Config) error {
 	// Calculate column widths
 	maxName := 4 // "NAME"
 	maxType := 4 // "TYPE"
+	maxGroup := 6 // "GROUPS"
 	for _, c := range cfg.Checks {
 		if len(c.Name) > maxName {
 			maxName = len(c.Name)
@@ -51,11 +53,15 @@ func listPretty(cfg *config.Config) error {
 		if len(c.Type) > maxType {
 			maxType = len(c.Type)
 		}
+		g := formatGroups(c.Groups)
+		if len(g) > maxGroup {
+			maxGroup = len(g)
+		}
 	}
 
 	// Header
 	fmt.Println()
-	header := fmt.Sprintf("  %-*s  %-*s  %s", maxName, "NAME", maxType, "TYPE", "TIMEOUT")
+	header := fmt.Sprintf("  %-*s  %-*s  %-*s  %s", maxName, "NAME", maxType, "TYPE", maxGroup, "GROUPS", "TIMEOUT")
 	fmt.Println(styles.Title.Render(header))
 	fmt.Println()
 
@@ -68,9 +74,10 @@ func listPretty(cfg *config.Config) error {
 
 		name := styles.CheckName.Render(fmt.Sprintf("%-*s", maxName, c.Name))
 		typ := styles.Message.Render(fmt.Sprintf("%-*s", maxType, c.Type))
+		grp := styles.Hint.Render(fmt.Sprintf("%-*s", maxGroup, formatGroups(c.Groups)))
 		to := styles.Hint.Render(timeout)
 
-		fmt.Printf("  %s  %s  %s\n", name, typ, to)
+		fmt.Printf("  %s  %s  %s  %s\n", name, typ, grp, to)
 	}
 
 	// Footer
@@ -85,6 +92,7 @@ func listPlain(cfg *config.Config) error {
 	// Calculate column widths
 	maxName := 4
 	maxType := 4
+	maxGroup := 6
 	for _, c := range cfg.Checks {
 		if len(c.Name) > maxName {
 			maxName = len(c.Name)
@@ -92,10 +100,14 @@ func listPlain(cfg *config.Config) error {
 		if len(c.Type) > maxType {
 			maxType = len(c.Type)
 		}
+		g := formatGroups(c.Groups)
+		if len(g) > maxGroup {
+			maxGroup = len(g)
+		}
 	}
 
 	// Header
-	fmt.Printf("%-*s  %-*s  %s\n", maxName, "NAME", maxType, "TYPE", "TIMEOUT")
+	fmt.Printf("%-*s  %-*s  %-*s  %s\n", maxName, "NAME", maxType, "TYPE", maxGroup, "GROUPS", "TIMEOUT")
 
 	// Rows
 	for _, c := range cfg.Checks {
@@ -103,7 +115,7 @@ func listPlain(cfg *config.Config) error {
 		if timeout == "" {
 			timeout = "default"
 		}
-		fmt.Printf("%-*s  %-*s  %s\n", maxName, c.Name, maxType, c.Type, timeout)
+		fmt.Printf("%-*s  %-*s  %-*s  %s\n", maxName, c.Name, maxType, c.Type, maxGroup, formatGroups(c.Groups), timeout)
 	}
 
 	fmt.Printf("\n%d checks defined\n", len(cfg.Checks))
@@ -112,9 +124,10 @@ func listPlain(cfg *config.Config) error {
 
 func listJSON(cfg *config.Config) error {
 	type checkInfo struct {
-		Name    string `json:"name"`
-		Type    string `json:"type"`
-		Timeout string `json:"timeout"`
+		Name    string   `json:"name"`
+		Type    string   `json:"type"`
+		Groups  []string `json:"groups,omitempty"`
+		Timeout string   `json:"timeout"`
 	}
 
 	type listOutput struct {
@@ -135,6 +148,7 @@ func listJSON(cfg *config.Config) error {
 		out.Checks = append(out.Checks, checkInfo{
 			Name:    c.Name,
 			Type:    c.Type,
+			Groups:  c.Groups,
 			Timeout: timeout,
 		})
 	}
@@ -146,4 +160,12 @@ func listJSON(cfg *config.Config) error {
 
 	fmt.Println(string(data))
 	return nil
+}
+
+// formatGroups returns a display string for a check's groups.
+func formatGroups(groups []string) string {
+	if len(groups) == 0 {
+		return "*"
+	}
+	return strings.Join(groups, ",")
 }

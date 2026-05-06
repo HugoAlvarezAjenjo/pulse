@@ -26,6 +26,7 @@ type CheckConfig struct {
 	Status    int        `yaml:"status,omitempty"`
 	Container string     `yaml:"container,omitempty"`
 	Timeout   string     `yaml:"timeout,omitempty"`
+	Groups    []string   `yaml:"groups,omitempty"`
 	Fix       *FixConfig `yaml:"fix,omitempty"`
 }
 

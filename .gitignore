@@ -22,3 +22,6 @@ Thumbs.db
 
 # Go
 vendor/
+
+# Pulse local overrides
+.pulse.local.yaml

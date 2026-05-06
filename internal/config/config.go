@@ -58,6 +58,16 @@ func Parse(data []byte) (*Config, error) {
 	return &cfg, nil
 }
 
+// parseLocal parses a local override config without strict validation.
+// Allows empty checks list (a local file might only override a few checks).
+func parseLocal(data []byte) (*Config, error) {
+	var cfg Config
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("parsing local config: %w", err)
+	}
+	return &cfg, nil
+}
+
 // validate performs basic validation on the parsed config.
 func validate(cfg *Config) error {
 	if len(cfg.Checks) == 0 {

@@ -51,12 +51,17 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	} else {
 		fmt.Printf("  %s %s\n", styles.SuccessIcon.String(), value.Render(configPath))
 
-		// Try loading config to check validity
-		cfg, loadErr := config.Load(configPath)
+		// Check for local overrides
+		if localPath := config.DiscoverLocal(dir); localPath != "" {
+			fmt.Printf("  %s %s\n", styles.SuccessIcon.String(), value.Render(".pulse.local.yaml (overrides active)"))
+		}
+
+		// Try loading merged config to check validity
+		cfg, _, loadErr := config.DiscoverAndLoad(dir)
 		if loadErr != nil {
 			fmt.Printf("  %s %s\n", styles.FailureIcon.String(), styles.Message.Render(fmt.Sprintf("config error: %s", loadErr)))
 		} else {
-			fmt.Printf("  %s %s\n", styles.SuccessIcon.String(), value.Render(fmt.Sprintf("%d checks defined", len(cfg.Checks))))
+			fmt.Printf("  %s %s\n", styles.SuccessIcon.String(), value.Render(fmt.Sprintf("%d checks defined (after merge)", len(cfg.Checks))))
 
 			// Show check types summary
 			types := countCheckTypes(cfg)

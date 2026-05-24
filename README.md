@@ -80,7 +80,10 @@ pulse
 | `pulse ci` | Run checks in CI mode (no colors, no prompts) |
 | `pulse init` | Generate a `.pulse.yaml` (auto-detect or preset) |
 | `pulse list` | List configured checks without running them |
+| `pulse validate` | Validate config syntax without running checks |
+| `pulse report` | Run checks and generate a markdown report |
 | `pulse doctor` | Show diagnostic info about pulse and config |
+| `pulse completion` | Generate shell completion scripts (bash/zsh/fish) |
 
 ## Configuration
 

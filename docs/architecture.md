@@ -2,15 +2,25 @@
 
 ## Overview
 
-Pulse follows clean architecture principles with clear separation of concerns. The codebase is organized into focused packages with minimal coupling between them.
+Pulse follows clean architecture principles with clear separation of concerns. The codebase is organized into focused packages with minimal coupling.
 
 ```
-cmd/pulse/          → Entry point
+cmd/pulse/          → Entry point (main.go)
 cli/                → CLI commands (Cobra)
+  check.go          → Run environment checks
+  ci.go             → CI-optimized mode
+  init.go           → Generate config (auto-detect/presets)
+  list.go           → List checks without running
+  validate.go       → Validate config syntax
+  report.go         → Generate markdown reports
+  doctor.go         → Self-diagnostics
+  completion.go     → Shell completions
+  root.go           → Root command + global flags
 internal/
   checks/           → Check interface + implementations
-  config/           → Configuration parsing + discovery
-  renderer/         → Output rendering interface + implementations
+  config/           → Config parsing, discovery, extends, merge
+  generator/        → Stack detection + preset templates
+  renderer/         → Output rendering (pretty, plain, json, github)
   runner/           → Concurrent check execution
   fix/              → Fix command execution
   result/           → Result model
@@ -23,56 +33,68 @@ internal/
 
 Core abstractions are defined as interfaces:
 
-- **`checks.Check`** — Any validation that can be run
-- **`renderer.Renderer`** — Any way to output results
-
-This enables testing, extensibility, and future output formats (JSON, JUnit XML, etc.) without modifying existing code.
+- **`checks.Check`** — any validation that can be run
+- **`renderer.Renderer`** — any way to output results
 
 ### Composition Over Inheritance
 
-Each check type is a simple struct implementing the `Check` interface. There's no base class, no embedding hierarchy. Each check owns its logic completely.
+Each check type is a simple struct implementing the `Check` interface. No base class, no embedding hierarchy.
 
 ### Deterministic Output
 
-Although checks run concurrently for speed, results are always rendered in the order they were defined in configuration. This ensures reproducible, predictable output regardless of execution timing.
+Checks run concurrently but results are always rendered in config order.
 
 ## Data Flow
 
 ```
-Config File → Parse → []CheckConfig → Factory → []Check → Runner → []Result → Renderer → Output
+Config Discovery
+    ↓
+Extends Resolution (parent → child chain)
+    ↓
+Local Merge (.pulse.local.yaml)
+    ↓
+Group Filter (--group flag)
+    ↓
+Factory (CheckConfig → Check implementations)
+    ↓
+Runner (concurrent execution with timeouts)
+    ↓
+Results (ordered []Result)
+    ↓
+Renderer (pretty/plain/json/github)
+    ↓
+Exit Code (0/1/2)
 ```
 
-1. **Discovery** — Find `.pulse.yaml` or `pulse.yaml`
-2. **Parsing** — Decode YAML into typed config structs
-3. **Factory** — Convert config entries into Check implementations
-4. **Runner** — Execute all checks concurrently with timeouts
-5. **Rendering** — Output results using the selected renderer
-6. **Fix** — Optionally prompt and execute fix commands
+## Config Resolution Order
+
+```
+1. Discover .pulse.yaml or pulse.yaml
+2. If `extends` → resolve parent chain (max 5 levels, circular detection)
+3. Merge: child overrides parent by check name
+4. If .pulse.local.yaml exists → merge on top
+5. Final config passed to runner
+```
+
+## Check Types
+
+| Type | What it validates |
+|------|-------------------|
+| `command` | Command exists + optional version constraint |
+| `file` | File exists at path |
+| `port` | TCP port accepting connections |
+| `env` | Environment variable set + optional pattern |
+| `http` | HTTP endpoint responds with expected status |
+| `docker` | Docker container is running |
 
 ## Concurrency Model
 
-The runner launches one goroutine per check. Results are stored in a pre-allocated slice indexed by position, ensuring order preservation without sorting. A `sync.WaitGroup` coordinates completion.
+The runner launches one goroutine per check. Results are stored in a pre-allocated slice indexed by position. A `sync.WaitGroup` coordinates completion.
 
-Each check gets its own `context.Context` with a timeout, enabling:
-- Individual check timeouts
-- Global cancellation
-- Clean shutdown
-
-## Error Model
-
-Three distinct result states:
-
-| Status | Meaning | Exit Code |
-|--------|---------|-----------|
-| Success | Check passed | 0 |
-| Failure | Check didn't pass (expected condition not met) | 1 |
-| Error | Runtime/internal error (command crashed, invalid config) | 2 |
-
-This distinction is important: a port being closed is a **failure** (the environment isn't ready), but a malformed config is an **error** (the tool can't function).
+Each check gets its own `context.Context` with timeout:
+- Per-check timeout (config) > Global timeout (flag) > Default (30s)
 
 ## Renderer System
-
-The `Renderer` interface decouples output formatting from check execution:
 
 ```go
 type Renderer interface {
@@ -80,29 +102,23 @@ type Renderer interface {
     Success(r result.Result)
     Failure(r result.Result)
     Error(r result.Result)
-    Summary(results []result.Result)
+    Summary(results []result.Result, duration time.Duration)
 }
 ```
 
-Current implementations:
-- **PrettyRenderer** — Colored terminal output with Lip Gloss
-- **PlainRenderer** — Unformatted text for CI/pipes
+Implementations:
+- **PrettyRenderer** — Colored terminal output (Lip Gloss), auto-disabled when piped
+- **PlainRenderer** — No colors, for CI/pipes
+- **JSONRenderer** — Structured JSON for tooling integration
+- **GitHubRenderer** — GitHub Actions workflow commands
 
-Future implementations could include:
-- JSON output
-- JUnit XML (for CI integration)
-- GitHub Actions annotations
+## Error Model
 
-## Fix System
-
-The fix system is intentionally simple:
-- Checks can declare a fix command in config
-- Pulse never auto-executes fixes
-- User must confirm each fix interactively
-- Commands run with a timeout
-- Output is streamed in real time
-
-This keeps pulse as a **diagnostic tool**, not a provisioning system.
+| Status | Meaning | Exit Code |
+|--------|---------|-----------|
+| Success | Check passed | 0 |
+| Failure | Expected condition not met | 1 |
+| Error | Runtime/internal error | 2 |
 
 ## Package Dependencies
 
@@ -110,6 +126,7 @@ This keeps pulse as a **diagnostic tool**, not a provisioning system.
 cmd/pulse → cli → internal/*
                     ├── checks → config, result
                     ├── config → (yaml.v3)
+                    ├── generator → (os, filepath)
                     ├── runner → checks, result
                     ├── renderer → result, styles
                     ├── fix → result
@@ -117,4 +134,4 @@ cmd/pulse → cli → internal/*
                     └── styles → (lipgloss)
 ```
 
-The `result` package has zero internal dependencies, making it a stable foundation. The `config` package only depends on the YAML library. This keeps the dependency graph clean and acyclic.
+The `result` package has zero internal dependencies. The `config` package only depends on yaml.v3. Clean, acyclic dependency graph.

@@ -1,0 +1,46 @@
+checks:
+  # Toolchain
+  - name: Go
+    type: command
+    command: go version
+    expected: ">=1.21"
+
+  - name: Docker
+    type: command
+    command: docker --version
+
+  - name: Make
+    type: command
+    command: make --version
+
+  # Project structure
+  - name: Go module
+    type: file
+    path: go.mod
+
+  - name: Main entry
+    type: file
+    path: cmd/server/main.go
+
+  # Services
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    timeout: 3s
+    fix:
+      run: "docker compose up -d postgres"
+
+  - name: gRPC port
+    type: port
+    host: localhost
+    port: 50051
+    groups: [integration]
+    timeout: 5s
+
+  # Config
+  - name: Config file
+    type: file
+    path: config.yaml
+    fix:
+      run: "cp config.example.yaml config.yaml"

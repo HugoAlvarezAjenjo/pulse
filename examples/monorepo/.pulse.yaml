@@ -1,0 +1,67 @@
+checks:
+  # Shared tooling
+  - name: Docker
+    type: command
+    command: docker --version
+
+  - name: Docker Compose
+    type: command
+    command: docker compose version
+
+  - name: Make
+    type: command
+    command: make --version
+
+  - name: Environment file
+    type: file
+    path: .env
+    fix:
+      run: "cp .env.example .env"
+
+  # Frontend
+  - name: Node.js
+    type: command
+    command: node --version
+    expected: ">=20"
+    groups: [frontend]
+
+  - name: pnpm
+    type: command
+    command: pnpm --version
+    groups: [frontend]
+
+  # Backend
+  - name: Go
+    type: command
+    command: go version
+    expected: ">=1.22"
+    groups: [backend]
+
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    timeout: 3s
+    groups: [backend]
+    fix:
+      run: "docker compose up -d postgres"
+
+  - name: Redis
+    type: port
+    host: localhost
+    port: 6379
+    timeout: 3s
+    groups: [backend]
+    fix:
+      run: "docker compose up -d redis"
+
+  # Infrastructure
+  - name: Terraform
+    type: command
+    command: terraform --version
+    groups: [infra]
+
+  - name: AWS CLI
+    type: command
+    command: aws --version
+    groups: [infra]

@@ -1,0 +1,55 @@
+checks:
+  # Runtime
+  - name: Python
+    type: command
+    command: python3 --version
+    expected: ">=3.10"
+
+  - name: pip
+    type: command
+    command: pip3 --version
+
+  # Virtual environment
+  - name: Virtual env
+    type: file
+    path: .venv
+    fix:
+      run: "python3 -m venv .venv"
+
+  # Project files
+  - name: Requirements
+    type: file
+    path: requirements.txt
+
+  - name: Environment file
+    type: file
+    path: .env
+    fix:
+      run: "cp .env.example .env"
+
+  # Services
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    timeout: 3s
+    fix:
+      run: "docker compose up -d db"
+
+  - name: Redis
+    type: port
+    host: localhost
+    port: 6379
+    timeout: 3s
+    groups: [celery]
+    fix:
+      run: "docker compose up -d redis"
+
+  # Environment
+  - name: Django secret key
+    type: env
+    variable: DJANGO_SECRET_KEY
+
+  - name: Database URL
+    type: env
+    variable: DATABASE_URL

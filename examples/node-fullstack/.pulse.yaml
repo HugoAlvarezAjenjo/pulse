@@ -1,0 +1,51 @@
+checks:
+  # Runtime
+  - name: Node.js
+    type: command
+    command: node --version
+    expected: ">=18"
+
+  - name: pnpm
+    type: command
+    command: pnpm --version
+
+  # Project files
+  - name: package.json
+    type: file
+    path: package.json
+
+  - name: Environment file
+    type: file
+    path: .env
+    fix:
+      run: "cp .env.example .env"
+
+  # Services
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    timeout: 3s
+    groups: [backend]
+    fix:
+      run: "docker compose up db -d"
+
+  - name: Redis
+    type: port
+    host: localhost
+    port: 6379
+    timeout: 3s
+    groups: [backend]
+    fix:
+      run: "docker compose up redis -d"
+
+  # Environment variables
+  - name: Database URL
+    type: env
+    variable: DATABASE_URL
+    groups: [backend]
+
+  - name: JWT Secret
+    type: env
+    variable: JWT_SECRET
+    groups: [backend]

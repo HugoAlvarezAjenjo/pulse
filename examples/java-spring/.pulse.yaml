@@ -1,0 +1,45 @@
+checks:
+  # Toolchain
+  - name: Java
+    type: command
+    command: java --version
+    expected: ">=17"
+
+  - name: Maven wrapper
+    type: file
+    path: mvnw
+
+  # Project structure
+  - name: POM file
+    type: file
+    path: pom.xml
+
+  - name: Application properties
+    type: file
+    path: src/main/resources/application.properties
+
+  # Services
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    timeout: 3s
+    groups: [backend]
+    fix:
+      run: "docker compose up -d postgres"
+
+  - name: RabbitMQ
+    type: port
+    host: localhost
+    port: 5672
+    timeout: 3s
+    groups: [messaging]
+    fix:
+      run: "docker compose up -d rabbitmq"
+
+  # Health check (when running)
+  - name: App health
+    type: http
+    url: http://localhost:8080/actuator/health
+    groups: [integration]
+    timeout: 10s

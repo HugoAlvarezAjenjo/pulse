@@ -33,36 +33,43 @@
 - [x] `http` — health check endpoints
 - [x] `docker` — verify containers are running
 
-## v0.5.0 — Developer Experience
+## v0.5.0 — Developer Experience ✅
 
-- [ ] `pulse generate` — auto-detect stack and generate config
-- [ ] `pulse doctor` — self-diagnostics
-- [ ] Presets: `pulse init --preset node|go|python`
+- [x] `pulse doctor` — self-diagnostics
+- [x] `pulse init` with auto-detection and `--preset`
+- [x] `pulse init --empty` for blank templates
+- [x] `pulse list` — inspect checks without running
+- [x] `pulse ci` — CI-optimized mode with `--fail-fast`
+- [x] Auto-detect TTY (plain output when piped)
+
+## v0.6.0 — Teams & Scale ✅
+
+- [x] Check groups (`--group` / `-g`)
+- [x] `.pulse.local.yaml` personal overrides (merged automatically)
+- [x] Per-check `timeout` in config
+- [x] Global `--timeout` flag
+- [x] Total execution duration in summary
 
 ## v1.0.0 — Stable Release
 
-- [ ] Config schema validation
-- [ ] Check groups/profiles (`pulse check --group backend`)
-- [ ] Global `--timeout` flag
-- [ ] `pulse version` with build info
-- [ ] Man pages
+- [ ] Config `extends` (inheritance from base configs)
+- [ ] Config schema validation with clear error messages
+- [ ] `pulse validate` — check config syntax without running
+- [ ] Update README with all current features
+- [ ] Update architecture docs
+- [ ] Man pages / CLI help improvements
 - [ ] Semver stability guarantee
 
 ## v1.1.0 — Power Features
 
 - [ ] `pulse watch` — re-run on config change
-- [ ] Config `extends` (inheritance)
-- [ ] Check `depends_on`
-
-## v1.2.0 — Team & Collaboration
-
-- [ ] `.pulse.local.yaml` overrides
-- [ ] Exportable markdown reports
-- [ ] Pre-commit hook integration
+- [ ] Check `depends_on` (dependency between checks)
+- [ ] `pulse report --markdown` — exportable reports
+- [ ] Pre-commit hook integration guide
 
 ## v2.0.0 — Ecosystem
 
-- [ ] Lightweight plugin system
+- [ ] Lightweight plugin system (external check binaries)
 - [ ] Community preset registry
 - [ ] VSCode extension
-- [ ] `pulse ci` optimized mode
+- [ ] Config registry for organizations

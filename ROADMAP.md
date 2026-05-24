@@ -45,31 +45,42 @@
 ## v0.6.0 — Teams & Scale ✅
 
 - [x] Check groups (`--group` / `-g`)
-- [x] `.pulse.local.yaml` personal overrides (merged automatically)
+- [x] `.pulse.local.yaml` personal overrides
 - [x] Per-check `timeout` in config
 - [x] Global `--timeout` flag
 - [x] Total execution duration in summary
 
-## v1.0.0 — Stable Release
+## v1.0.0 — Stable Release ✅
 
-- [ ] Config `extends` (inheritance from base configs)
-- [ ] Config schema validation with clear error messages
-- [ ] `pulse validate` — check config syntax without running
-- [ ] Update README with all current features
-- [ ] Update architecture docs
-- [ ] Man pages / CLI help improvements
-- [ ] Semver stability guarantee
+- [x] Config `extends` (inheritance with circular detection)
+- [x] `pulse validate` — check config syntax without running
+- [x] `pulse report` — generate shareable markdown reports
+- [x] `pulse completion` — shell auto-complete (bash/zsh/fish/powershell)
+- [x] Full README with all features documented
+- [x] Architecture docs updated
+- [x] Example configs for 6 stacks (Node, Go, Python, Java, Monorepo, Extends)
+- [x] Extends test suite
+
+---
 
 ## v1.1.0 — Power Features
 
-- [ ] `pulse watch` — re-run on config change
-- [ ] Check `depends_on` (dependency between checks)
-- [ ] `pulse report --markdown` — exportable reports
-- [ ] Pre-commit hook integration guide
+- [ ] `pulse watch` — re-run checks on config file change
+- [ ] Check `depends_on` — dependency between checks
+- [ ] `pulse diff` — compare environments between teammates
+- [ ] Pre-commit hook integration guide + example
+
+## v1.2.0 — Observability
+
+- [ ] `pulse report --html` — HTML report with styling
+- [ ] Onboarding metrics tracking (time to first green)
+- [ ] Webhook/Slack notifications on first success
+- [ ] `pulse status` — one-line summary for shell prompts
 
 ## v2.0.0 — Ecosystem
 
 - [ ] Lightweight plugin system (external check binaries)
 - [ ] Community preset registry
-- [ ] VSCode extension
-- [ ] Config registry for organizations
+- [ ] VSCode extension (uses `--output json`)
+- [ ] Config registry for organizations (remote `extends`)
+- [ ] Landing page / documentation site

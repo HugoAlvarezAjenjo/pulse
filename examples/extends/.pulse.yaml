@@ -1,0 +1,23 @@
+# This project extends the org base config
+extends: base.pulse.yaml
+
+checks:
+  # Override: our .env fix is different
+  - name: Environment file
+    type: file
+    path: .env
+    fix:
+      run: "make setup-env"
+
+  # Add project-specific checks
+  - name: Node.js
+    type: command
+    command: node --version
+    expected: ">=20"
+
+  - name: PostgreSQL
+    type: port
+    host: localhost
+    port: 5432
+    fix:
+      run: "docker compose up -d db"

@@ -329,13 +329,47 @@ pulse ci -g backend         # only backend checks
 | `--empty` | | Generate blank template (init command) |
 | `--force` | | Overwrite existing config (init command) |
 
+## Config Inheritance (`extends`)
+
+Share a base config across multiple projects:
+
+```yaml
+# base.pulse.yaml (shared across org)
+checks:
+  - name: Git
+    type: command
+    command: git --version
+  - name: Docker
+    type: command
+    command: docker --version
+```
+
+```yaml
+# .pulse.yaml (project-specific)
+extends: base.pulse.yaml
+
+checks:
+  - name: Node.js
+    type: command
+    command: node --version
+    expected: ">=20"
+```
+
+Rules:
+- Child checks with same `name` override the parent
+- New checks are appended
+- Supports chains (parent can also `extends`)
+- Max 5 levels deep (circular detection included)
+- Path is relative to the config file
+
 ## Config Discovery
 
 Pulse searches in the current directory:
 
 1. `.pulse.yaml` (preferred)
 2. `pulse.yaml`
-3. `.pulse.local.yaml` (merged on top, if exists)
+3. Resolves `extends` chain if present
+4. `.pulse.local.yaml` (merged on top, if exists)
 
 ## Development
 

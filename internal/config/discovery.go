@@ -39,14 +39,15 @@ func DiscoverLocal(dir string) string {
 }
 
 // DiscoverAndLoad finds and loads a pulse config from the given directory.
-// If a .pulse.local.yaml exists, it is merged on top of the base config.
+// Resolves `extends` inheritance, then merges .pulse.local.yaml on top.
 func DiscoverAndLoad(dir string) (*Config, string, error) {
 	path, err := Discover(dir)
 	if err != nil {
 		return nil, "", err
 	}
 
-	cfg, err := Load(path)
+	// Load with extends resolution
+	cfg, err := LoadWithExtends(path)
 	if err != nil {
 		return nil, path, err
 	}

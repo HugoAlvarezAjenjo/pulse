@@ -9,7 +9,8 @@ import (
 
 // Config represents the top-level pulse configuration.
 type Config struct {
-	Checks []CheckConfig `yaml:"checks"`
+	Extends string        `yaml:"extends,omitempty"`
+	Checks  []CheckConfig `yaml:"checks"`
 }
 
 // CheckConfig represents a single check entry in the configuration.

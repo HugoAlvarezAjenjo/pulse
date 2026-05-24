@@ -1,0 +1,17 @@
+## Organization base config
+# All projects must have these checks
+
+checks:
+  - name: Git
+    type: command
+    command: git --version
+
+  - name: Docker
+    type: command
+    command: docker --version
+
+  - name: Environment file
+    type: file
+    path: .env
+    fix:
+      run: "cp .env.example .env"

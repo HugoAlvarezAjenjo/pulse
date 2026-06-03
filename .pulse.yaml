@@ -27,6 +27,10 @@ checks:
     type: file
     path: .golangci.yml
 
+  - name: LICENSE
+    type: file
+    path: LICENSE
+
   # Documentation
   - name: README
     type: file
@@ -35,6 +39,14 @@ checks:
   - name: Architecture docs
     type: file
     path: docs/architecture.md
+
+  - name: Contributing guide
+    type: file
+    path: CONTRIBUTING.md
+
+  - name: Roadmap
+    type: file
+    path: ROADMAP.md
 
   # Environment
   - name: GOPATH set

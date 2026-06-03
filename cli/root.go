@@ -19,8 +19,14 @@ var (
 // rootCmd is the base command for pulse.
 var rootCmd = &cobra.Command{
 	Use:   "pulse",
-	Short: "Takes the pulse of your development environment",
-	Long:  "Pulse validates whether your development environment is correctly configured for a project.",
+	Short: "Validate your development environment",
+	Long: `Pulse validates whether your development environment is correctly configured.
+
+It checks for required tools, files, services, and environment variables,
+then reports what's missing and optionally suggests fixes.
+
+Run 'pulse' with no arguments to execute all checks.
+Run 'pulse init' to generate a config for your project.`,
 	// Default behavior: run check
 	RunE: runCheck,
 }

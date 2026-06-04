@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse — Validate your dev environment in milliseconds</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --border: #1e1e2e;
+            --text: #f2f2fb;
+            --muted: #a8a8c0;
+            --accent: #6c63ff;
+            --accent-glow: rgba(108, 99, 255, 0.15);
+            --green: #4ade80;
+            --red: #f87171;
+            --yellow: #fbbf24;
+            --radius: 12px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.02;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: 9999;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        a:hover {
+            opacity: 0.8;
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-anim 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-anim {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            opacity: 1;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.75rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a52e0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        /* Terminal */
+        .terminal {
+            margin-top: 4rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 620px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot:nth-child(1) { background: #ff5f57; }
+        .terminal-dot:nth-child(2) { background: #febc2e; }
+        .terminal-dot:nth-child(3) { background: #28c840; }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            text-align: left;
+        }
+
+        .terminal-line {
+            display: grid;
+            grid-template-columns: 1.2rem 10ch 1fr;
+            gap: 0.5rem;
+        }
+
+        .terminal-body .prompt {
+            color: var(--muted);
+        }
+
+        .terminal-body .cmd {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .terminal-body .pass {
+            color: var(--green);
+        }
+
+        .terminal-body .fail {
+            color: var(--red);
+        }
+
+        .terminal-body .dim {
+            color: var(--muted);
+        }
+
+        .terminal-body .fix {
+            color: var(--yellow);
+        }
+
+        /* Sections */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        section h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        section .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Features grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-glow);
+            border-radius: 8px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Check types */
+        .checks-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .check-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .check-item:hover {
+            border-color: var(--accent);
+        }
+
+        .check-item .check-type {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+        }
+
+        .check-item .check-desc {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Install section */
+        .install-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .install-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+        }
+
+        .install-card h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--muted);
+        }
+
+        .install-code {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .install-code .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--border);
+            border: none;
+            border-radius: 4px;
+            color: var(--muted);
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .install-code .copy-btn:hover {
+            color: var(--text);
+        }
+
+        /* Downloads */
+        .downloads-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .downloads-table th,
+        .downloads-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .downloads-table th {
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .downloads-table td {
+            font-size: 0.9rem;
+        }
+
+        .downloads-table tr:hover td {
+            background: var(--surface);
+        }
+
+        .os-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--muted);
+        }
+
+        footer a:hover {
+            color: var(--text);
+        }
+
+        /* Config example */
+        .config-example {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .config-example-header {
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        .config-example pre {
+            padding: 1.5rem;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+
+        .config-example .key { color: #7dd3fc; }
+        .config-example .str { color: #a5f3b4; }
+        .config-example .comment { color: #6b7280; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            section {
+                padding: 4rem 1.25rem;
+            }
+
+            .hero {
+                padding: 5rem 1.25rem 3rem;
+            }
+
+            .terminal {
+                margin-top: 2.5rem;
+            }
+
+            .downloads-table {
+                font-size: 0.8rem;
+            }
+
+            .downloads-table th,
+            .downloads-table td {
+                padding: 0.75rem;
+            }
+
+            .checks-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<nav>
+    <div class="nav-brand">
+        <div class="pulse-dot"></div>
+        Pulse
+    </div>
+    <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+        <li><a href="https://github.com/HugoAlvarezAjenjo/pulse">GitHub</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <h1>Know your environment<br>is <span>ready</span></h1>
+    <p>Declarative dev environment checks in YAML. Run one command, get instant diagnostics. No more "works on my machine."</p>
+    <div class="hero-actions">
+        <a href="#install" class="btn btn-primary">Get Started</a>
+        <a href="https://github.com/HugoAlvarezAjenjo/pulse" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            Source
+        </a>
+    </div>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+        </div>
+        <div class="terminal-body">
+            <div><span class="prompt">$</span> <span class="cmd">pulse</span></div>
+            <br>
+            <div class="terminal-line"><span class="pass">&#10003;</span><span>Go</span><span class="dim">go version go1.26.2 darwin/arm64</span></div>
+            <div class="terminal-line"><span class="pass">&#10003;</span><span>Node.js</span><span class="dim">v22.3.0</span></div>
+            <div class="terminal-line"><span class="pass">&#10003;</span><span>Docker</span><span class="dim">running</span></div>
+            <div class="terminal-line"><span class="pass">&#10003;</span><span>.env file</span><span class="dim">found</span></div>
+            <div class="terminal-line"><span class="fail">&#10007;</span><span>PostgreSQL</span><span class="dim">localhost:5432 refused</span></div>
+            <div class="terminal-line"><span></span><span></span><span class="fix">fix: docker compose up db -d</span></div>
+            <br>
+            <div><span class="dim">4 passed</span> &middot; <span class="fail">1 failed</span> &middot; <span class="dim">87ms</span></div>
+        </div>
+    </div>
+</section>
+
+<section id="features">
+    <h2>Why teams use Pulse</h2>
+    <p class="subtitle">One YAML file in your repo. Every developer runs <code>pulse</code> and knows instantly what's wrong.</p>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">&#9889;</div>
+            <h3>Sub-200ms</h3>
+            <p>All checks run concurrently. 10+ checks finish before your terminal repaints.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128269;</div>
+            <h3>Validate, don't provision</h3>
+            <p>Checks your environment without installing, modifying, or touching anything. Safe and read-only.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128736;</div>
+            <h3>Suggested fixes</h3>
+            <p>Each check can include a fix command. Run <code>pulse --fix</code> and it prompts before executing.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#127919;</div>
+            <h3>CI-native</h3>
+            <p>JSON output, GitHub Actions annotations, proper exit codes. Drop it into any pipeline.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128101;</div>
+            <h3>Team-friendly</h3>
+            <p>Groups, local overrides, config inheritance. Scale from solo projects to monorepos.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">&#128196;</div>
+            <h3>Zero dependencies</h3>
+            <p>Single static binary. No runtime, no daemon, no config server. Just drop it in your PATH.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <h2>Six check types</h2>
+    <p class="subtitle">Cover the most common environment requirements out of the box.</p>
+
+    <div class="checks-list">
+        <div class="check-item">
+            <div class="check-type">command</div>
+            <div class="check-desc">CLI tools & versions</div>
+        </div>
+        <div class="check-item">
+            <div class="check-type">file</div>
+            <div class="check-desc">Config files exist</div>
+        </div>
+        <div class="check-item">
+            <div class="check-type">port</div>
+            <div class="check-desc">Services listening</div>
+        </div>
+        <div class="check-item">
+            <div class="check-type">env</div>
+            <div class="check-desc">Environment vars</div>
+        </div>
+        <div class="check-item">
+            <div class="check-type">http</div>
+            <div class="check-desc">Health endpoints</div>
+        </div>
+        <div class="check-item">
+            <div class="check-type">docker</div>
+            <div class="check-desc">Containers running</div>
+        </div>
+    </div>
+
+    <div class="config-example">
+        <div class="config-example-header">.pulse.yaml</div>
+        <pre><span class="key">checks</span>:
+  - <span class="key">name</span>: <span class="str">Node.js</span>
+    <span class="key">type</span>: <span class="str">command</span>
+    <span class="key">command</span>: <span class="str">node --version</span>
+    <span class="key">expected</span>: <span class="str">"&gt;= 18.0"</span>
+
+  - <span class="key">name</span>: <span class="str">PostgreSQL</span>
+    <span class="key">type</span>: <span class="str">port</span>
+    <span class="key">host</span>: <span class="str">localhost</span>
+    <span class="key">port</span>: <span class="str">5432</span>
+    <span class="key">groups</span>: [<span class="str">backend</span>]
+    <span class="key">fix</span>:
+      <span class="key">run</span>: <span class="str">"docker compose up db -d"</span>
+
+  - <span class="key">name</span>: <span class="str">API Key</span>
+    <span class="key">type</span>: <span class="str">env</span>
+    <span class="key">variable</span>: <span class="str">API_KEY</span>
+    <span class="key">expected</span>: <span class="str">"sk-*"</span></pre>
+    </div>
+</section>
+
+<section id="install">
+    <h2>Install</h2>
+    <p class="subtitle">Three ways, all under 10 seconds.</p>
+
+    <div class="install-options">
+        <div class="install-card">
+            <h3>Quick install (Linux / macOS)</h3>
+            <div class="install-code">
+                <button class="copy-btn" onclick="copy(this)">Copy</button>
+                curl -sSL https://raw.githubusercontent.com/HugoAlvarezAjenjo/pulse/main/install.sh | sh
+            </div>
+        </div>
+        <div class="install-card">
+            <h3>Go install</h3>
+            <div class="install-code">
+                <button class="copy-btn" onclick="copy(this)">Copy</button>
+                go install github.com/HugoAlvarezAjenjo/pulse/cmd/pulse@latest
+            </div>
+        </div>
+        <div class="install-card">
+            <h3>Download binary</h3>
+            <div class="install-code">
+                <button class="copy-btn" onclick="copy(this)">Copy</button>
+                <span class="comment"># See downloads below or grab from GitHub Releases</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="downloads">
+    <h2>Downloads</h2>
+    <p class="subtitle">Pre-built binaries for every platform. Grab the latest release.</p>
+
+    <table class="downloads-table">
+        <thead>
+            <tr>
+                <th>Platform</th>
+                <th>Architecture</th>
+                <th>Format</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="os-badge">&#128038; Linux</span></td>
+                <td>amd64</td>
+                <td>tar.gz</td>
+            </tr>
+            <tr>
+                <td><span class="os-badge">&#128038; Linux</span></td>
+                <td>arm64</td>
+                <td>tar.gz</td>
+            </tr>
+            <tr>
+                <td><span class="os-badge">&#127822; macOS</span></td>
+                <td>amd64 (Intel)</td>
+                <td>tar.gz</td>
+            </tr>
+            <tr>
+                <td><span class="os-badge">&#127822; macOS</span></td>
+                <td>arm64 (Apple Silicon)</td>
+                <td>tar.gz</td>
+            </tr>
+            <tr>
+                <td><span class="os-badge">&#129695; Windows</span></td>
+                <td>amd64</td>
+                <td>zip</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p style="margin-top: 1.5rem; text-align: center;">
+        <a href="https://github.com/HugoAlvarezAjenjo/pulse/releases/latest" class="btn btn-secondary">View all downloads on GitHub Releases</a>
+    </p>
+</section>
+
+<footer>
+    <p>Built by <a href="https://github.com/HugoAlvarezAjenjo">Hugo Alvarez Ajenjo</a> &middot; <a href="https://github.com/HugoAlvarezAjenjo/pulse">Source on GitHub</a> &middot; MIT License</p>
+</footer>
+
+<script>
+function copy(btn) {
+    const code = btn.parentElement.textContent.replace('Copy', '').trim();
+    navigator.clipboard.writeText(code);
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+</script>
+
+</body>
+</html>

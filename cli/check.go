@@ -139,7 +139,7 @@ func handleFixes(ctx context.Context, results []result.Result) {
 
 	for _, r := range results {
 		if r.Status == result.Failure && r.Fix != nil {
-			executor.PromptAndRun(ctx, r)
+			_, _ = executor.PromptAndRun(ctx, r)
 		}
 	}
 }

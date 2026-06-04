@@ -42,9 +42,8 @@ func runList(cmd *cobra.Command, args []string) error {
 }
 
 func listPretty(cfg *config.Config) error {
-	// Calculate column widths
-	maxName := 4 // "NAME"
-	maxType := 4 // "TYPE"
+	maxName := 4  // "NAME"
+	maxType := 4  // "TYPE"
 	maxGroup := 6 // "GROUPS"
 	for _, c := range cfg.Checks {
 		if len(c.Name) > maxName {
@@ -59,7 +58,6 @@ func listPretty(cfg *config.Config) error {
 		}
 	}
 
-	// Header
 	fmt.Println()
 	header := fmt.Sprintf("  %-*s  %-*s  %-*s  %s", maxName, "NAME", maxType, "TYPE", maxGroup, "GROUPS", "TIMEOUT")
 	fmt.Println(styles.Title.Render(header))

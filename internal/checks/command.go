@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
+
+	goversion "github.com/hashicorp/go-version"
 
 	"github.com/HugoAlvarezAjenjo/pulse/internal/result"
 )
@@ -92,57 +93,30 @@ func (c *CommandCheck) Run(ctx context.Context) result.Result {
 }
 
 // matchesConstraint checks if the version string satisfies the constraint.
-// Supports >= prefix for minimum version comparison.
+// Supports semver constraints via hashicorp/go-version (>=, <=, >, <, ~>, !=, and ranges).
 func matchesConstraint(version, constraint string) bool {
-	if strings.HasPrefix(constraint, ">=") {
-		minVersion := strings.TrimPrefix(constraint, ">=")
-		return compareVersions(extractVersion(version), minVersion) >= 0
+	raw := extractVersion(version)
+	v, err := goversion.NewVersion(raw)
+	if err != nil {
+		return strings.Contains(version, constraint)
 	}
-	return strings.Contains(version, constraint)
+
+	c, err := goversion.NewConstraint(constraint)
+	if err != nil {
+		return strings.Contains(version, constraint)
+	}
+
+	return c.Check(v)
 }
 
-// versionRegex matches the first semver-like pattern (e.g., "1.26.2", "22.3.0")
 var versionRegex = regexp.MustCompile(`(\d+\.\d+(?:\.\d+)?)`)
 
-// extractVersion finds the first version-like pattern in the output string.
-// Handles any format: "v1.2.3", "go version go1.26.2 darwin/arm64", "node v22.3.0", etc.
 func extractVersion(output string) string {
 	match := versionRegex.FindString(output)
 	if match != "" {
 		return match
 	}
-	// Fallback: return trimmed input
 	return strings.TrimSpace(output)
-}
-
-// compareVersions performs a simple semver comparison.
-// Returns -1, 0, or 1.
-func compareVersions(a, b string) int {
-	aParts := parseVersion(a)
-	bParts := parseVersion(b)
-
-	maxLen := len(aParts)
-	if len(bParts) > maxLen {
-		maxLen = len(bParts)
-	}
-
-	for i := 0; i < maxLen; i++ {
-		var aNum, bNum int
-		if i < len(aParts) {
-			aNum = aParts[i]
-		}
-		if i < len(bParts) {
-			bNum = bParts[i]
-		}
-
-		if aNum < bNum {
-			return -1
-		}
-		if aNum > bNum {
-			return 1
-		}
-	}
-	return 0
 }
 
 func shellCommandContext(ctx context.Context, command string) *exec.Cmd {
@@ -150,22 +124,4 @@ func shellCommandContext(ctx context.Context, command string) *exec.Cmd {
 		return exec.CommandContext(ctx, "cmd", "/c", command)
 	}
 	return exec.CommandContext(ctx, "sh", "-c", command)
-}
-
-// parseVersion splits a version string into numeric parts.
-func parseVersion(v string) []int {
-	parts := strings.Split(v, ".")
-	nums := make([]int, 0, len(parts))
-	for _, p := range parts {
-		// Strip any non-numeric suffix (e.g., "22-beta")
-		p = strings.Split(p, "-")[0]
-		p = strings.Split(p, "+")[0]
-		n, err := strconv.Atoi(p)
-		if err != nil {
-			nums = append(nums, 0)
-		} else {
-			nums = append(nums, n)
-		}
-	}
-	return nums
 }

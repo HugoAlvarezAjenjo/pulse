@@ -60,7 +60,7 @@ func (c *HTTPCheck) Run(ctx context.Context) result.Result {
 			Fix:      c.Fix,
 		}
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != expectedStatus {
 		return result.Result{

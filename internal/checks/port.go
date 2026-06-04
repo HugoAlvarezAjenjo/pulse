@@ -46,7 +46,7 @@ func (c *PortCheck) Run(ctx context.Context) result.Result {
 			Fix:      c.Fix,
 		}
 	}
-	conn.Close()
+	_ = conn.Close()
 
 	return result.Result{
 		Name:     c.Name,

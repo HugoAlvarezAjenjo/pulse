@@ -6,7 +6,7 @@ var presets = map[string]string{
   - name: Go
     type: command
     command: go version
-    expected: ">=1.21"
+    expected: ">= 1.21"
 
   - name: Go module
     type: file
@@ -21,7 +21,7 @@ var presets = map[string]string{
   - name: Node.js
     type: command
     command: node --version
-    expected: ">=18"
+    expected: ">= 18.0"
 
   - name: npm
     type: command
@@ -42,7 +42,7 @@ var presets = map[string]string{
   - name: Python
     type: command
     command: python3 --version
-    expected: ">=3.10"
+    expected: ">= 3.10"
 
   - name: pip
     type: command
@@ -63,7 +63,7 @@ var presets = map[string]string{
   - name: Java
     type: command
     command: java --version
-    expected: ">=17"
+    expected: ">= 17.0"
 
   - name: Maven/Gradle
     type: file
@@ -78,7 +78,7 @@ var presets = map[string]string{
   - name: Rust
     type: command
     command: rustc --version
-    expected: ">=1.70"
+    expected: ">= 1.70"
 
   - name: Cargo
     type: command

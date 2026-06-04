@@ -1,13 +1,17 @@
 # Binaries
 /pulse
+pulse
 *.exe
 /bin/
 /dist/
 
+# Build artifacts
+*.out
+*.prof
+coverage.txt
+
 # Test artifacts
 *.test
-*.out
-coverage.txt
 
 # IDE
 .idea/

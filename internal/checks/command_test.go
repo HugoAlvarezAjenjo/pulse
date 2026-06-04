@@ -50,7 +50,7 @@ func TestCommandCheck_VersionConstraint(t *testing.T) {
 	check := &CommandCheck{
 		Name:     "echo version",
 		Command:  "echo v1.2.3",
-		Expected: ">=1.0.0",
+		Expected: ">= 1.0.0",
 	}
 
 	r := check.Run(context.Background())
@@ -63,7 +63,7 @@ func TestCommandCheck_VersionConstraintFails(t *testing.T) {
 	check := &CommandCheck{
 		Name:     "echo version",
 		Command:  "echo v0.9.0",
-		Expected: ">=1.0.0",
+		Expected: ">= 1.0.0",
 	}
 
 	r := check.Run(context.Background())
@@ -72,27 +72,29 @@ func TestCommandCheck_VersionConstraintFails(t *testing.T) {
 	}
 }
 
-func TestCompareVersions(t *testing.T) {
-	tests := []struct {
-		a, b string
-		want int
-	}{
-		{"1.0.0", "1.0.0", 0},
-		{"1.1.0", "1.0.0", 1},
-		{"1.0.0", "1.1.0", -1},
-		{"2.0.0", "1.9.9", 1},
-		{"22.3.0", "22.0.0", 1},
-		{"22.3.0", "22.3.0", 0},
-		{"22.3.0", "22.4.0", -1},
-		{"1.0", "1.0.0", 0},
-		{"1.0.1", "1.0", 1},
+func TestCommandCheck_VersionRange(t *testing.T) {
+	check := &CommandCheck{
+		Name:     "version in range",
+		Command:  "echo v1.21.5",
+		Expected: ">= 1.21, < 2.0",
 	}
 
-	for _, tt := range tests {
-		got := compareVersions(tt.a, tt.b)
-		if got != tt.want {
-			t.Errorf("compareVersions(%q, %q) = %d, want %d", tt.a, tt.b, got, tt.want)
-		}
+	r := check.Run(context.Background())
+	if r.Status != result.Success {
+		t.Errorf("expected success, got %s: %s", r.Status, r.Message)
+	}
+}
+
+func TestCommandCheck_PessimisticConstraint(t *testing.T) {
+	check := &CommandCheck{
+		Name:     "pessimistic",
+		Command:  "echo v1.21.5",
+		Expected: "~> 1.21",
+	}
+
+	r := check.Run(context.Background())
+	if r.Status != result.Success {
+		t.Errorf("expected success, got %s: %s", r.Status, r.Message)
 	}
 }
 
@@ -126,12 +128,15 @@ func TestMatchesConstraint(t *testing.T) {
 		constraint string
 		want       bool
 	}{
-		{"v22.3.0", ">=22", true},
-		{"v22.3.0", ">=22.0.0", true},
-		{"v22.3.0", ">=23.0.0", false},
-		{"v1.0.0", ">=1.0.0", true},
-		{"v0.9.0", ">=1.0.0", false},
-		{"go1.21.0", "1.21", true},
+		{"v22.3.0", ">= 22.0.0", true},
+		{"v22.3.0", ">= 23.0.0", false},
+		{"v1.0.0", ">= 1.0.0", true},
+		{"v0.9.0", ">= 1.0.0", false},
+		{"go version go1.21.0 darwin/arm64", ">= 1.21, < 2.0", true},
+		{"node v18.0.0", ">= 18.0.0", true},
+		{"v1.5.0", "~> 1.4", true},
+		{"v2.0.0", "~> 1.4", false},
+		{"v1.0.0", "!= 1.0.1", true},
 	}
 
 	for _, tt := range tests {

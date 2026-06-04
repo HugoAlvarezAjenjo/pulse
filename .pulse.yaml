@@ -3,7 +3,7 @@ checks:
   - name: Go
     type: command
     command: go version
-    expected: ">=1.23"
+    expected: ">= 1.23"
 
   # Project structure
   - name: Go module

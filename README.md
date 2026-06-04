@@ -94,7 +94,7 @@ checks:
   - name: Node.js
     type: command
     command: node --version
-    expected: ">=18"
+    expected: ">= 18.0"
 
   - name: Environment file
     type: file
@@ -133,8 +133,10 @@ Validates a command exists and optionally checks its version.
 - name: Go
   type: command
   command: go version
-  expected: ">=1.21"
+  expected: ">= 1.21"
 ```
+
+Version constraints use [semver syntax](https://github.com/hashicorp/go-version) — supports `>=`, `<=`, `>`, `<`, `!=`, `~>` (pessimistic), and ranges (`>= 1.21, < 2.0`).
 
 Version extraction is automatic — works with any output format (`go version go1.26.2 darwin/arm64`, `node v22.3.0`, `Python 3.12.1`, etc.)
 

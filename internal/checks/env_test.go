@@ -9,8 +9,7 @@ import (
 )
 
 func TestEnvCheck_Exists(t *testing.T) {
-	os.Setenv("PULSE_TEST_VAR", "hello")
-	defer os.Unsetenv("PULSE_TEST_VAR")
+	t.Setenv("PULSE_TEST_VAR", "hello")
 
 	check := &EnvCheck{
 		Name:     "test env",
@@ -24,7 +23,7 @@ func TestEnvCheck_Exists(t *testing.T) {
 }
 
 func TestEnvCheck_NotSet(t *testing.T) {
-	os.Unsetenv("PULSE_TEST_MISSING_VAR")
+	os.Unsetenv("PULSE_TEST_MISSING_VAR") //nolint:errcheck
 
 	check := &EnvCheck{
 		Name:     "missing env",
@@ -38,8 +37,7 @@ func TestEnvCheck_NotSet(t *testing.T) {
 }
 
 func TestEnvCheck_Empty(t *testing.T) {
-	os.Setenv("PULSE_TEST_EMPTY", "")
-	defer os.Unsetenv("PULSE_TEST_EMPTY")
+	t.Setenv("PULSE_TEST_EMPTY", "")
 
 	check := &EnvCheck{
 		Name:     "empty env",
@@ -53,8 +51,7 @@ func TestEnvCheck_Empty(t *testing.T) {
 }
 
 func TestEnvCheck_PatternMatch(t *testing.T) {
-	os.Setenv("PULSE_TEST_KEY", "sk-abc123")
-	defer os.Unsetenv("PULSE_TEST_KEY")
+	t.Setenv("PULSE_TEST_KEY", "sk-abc123")
 
 	check := &EnvCheck{
 		Name:     "api key",
@@ -69,8 +66,7 @@ func TestEnvCheck_PatternMatch(t *testing.T) {
 }
 
 func TestEnvCheck_PatternNoMatch(t *testing.T) {
-	os.Setenv("PULSE_TEST_KEY", "wrong-value")
-	defer os.Unsetenv("PULSE_TEST_KEY")
+	t.Setenv("PULSE_TEST_KEY", "wrong-value")
 
 	check := &EnvCheck{
 		Name:     "api key",

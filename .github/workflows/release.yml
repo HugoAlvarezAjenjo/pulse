@@ -2,10 +2,9 @@ name: Release
 
 on:
   workflow_dispatch:
-  # Uncomment this when you want automatic releases on tag push:
-  # push:
-  #   tags:
-  #     - 'v*'
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write

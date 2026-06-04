@@ -25,12 +25,14 @@ Summary: 3 passed • 1 failed • 142ms
 
 ## Why Pulse?
 
+Every team has onboarding friction. New developers clone the repo, run the project, and hit cryptic errors because they're missing a tool, a service isn't running, or an env var isn't set. The fix is usually buried in a wiki nobody maintains.
+
+Pulse replaces that wiki with a declarative YAML file that lives in the repo. Run `pulse` and you know in under 200ms exactly what's missing — no guessing, no Slack messages, no "works on my machine."
+
 - **Validate, don't provision** — checks your environment, never installs software
-- **Declarative** — define checks in YAML, not imperative scripts
+- **Declarative** — one YAML file, version-controlled with the code
 - **Fast** — concurrent execution, typically <200ms for 10+ checks
-- **Zero config servers** — lives in your repo, runs locally
 - **CI-native** — JSON output, GitHub annotations, proper exit codes
-- **Team-friendly** — groups, local overrides, per-check timeouts
 
 ## Installation
 
